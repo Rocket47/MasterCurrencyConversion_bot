@@ -2,11 +2,6 @@
 using Telegram.Bot;
 using Telegram.Bot.Args;
 using System.Threading.Tasks;
-using System.Net.Http;
-using System.Collections.Generic;
-using System.Net;
-using Telegram.Bot.Requests;
-using System.Linq;
 using Telegram.Bot.Types.Enums;
 using System.Globalization;
 
@@ -40,22 +35,16 @@ namespace MasterCurrencyConversion
         
             string date = GetOnlyDate(e.Message.Text.ToString());
             string currency = GetOnlyCurrency(e.Message.Text.ToString());
-            if (CheckDate(date) && CheckCurrency(currency))
+
+            if (CheckDate(date)) 
             {
-                await dataLoader.GetDataPrivateBank(e.Message.Text.ToString());
-                PrintMessage(e, dataLoader.GetInfo());
-            }            
-            if ((!CheckDate(date)) && (CheckCurrency(currency)) && (!e.Message.Text.Equals("Start")))
-            {
-                PrintMessage(e, "Invalid date format");
-                return;
-            }
-            if ((CheckDate(date)) && (!CheckCurrency(currency))  && (!e.Message.Text.Equals("Start")))
-            {
-                PrintMessage(e, "Invalid currency format");
-                return;
-            }
-            if ((!CheckDate(date)) && (!CheckCurrency(currency)) && (!e.Message.Text.Equals("Start")))
+                await dataLoader.GetDataPrivateBank(e.Message.Text.ToString(), currency);
+                if (CheckCurrency())
+                {
+                    PrintMessage(e, dataLoader.GetCurrency());
+                }
+            }           
+            if ((!CheckDate(date)) && (!CheckCurrency()) && (!e.Message.Text.Equals("Start")))
             {
                 PrintMessage(e, "Invalid format");
                 return;
@@ -101,13 +90,14 @@ namespace MasterCurrencyConversion
             return valid;
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        static bool CheckCurrency(string str)
+        static bool CheckCurrency()
         {
-            if (str == null)
+            string currency = dataLoader.result;
+            if (currency == null)
             {
                 return false;
             }
-            return str.Equals("USD");
+            return true;
         }
     }
 }

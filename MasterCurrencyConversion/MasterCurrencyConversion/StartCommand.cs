@@ -11,14 +11,12 @@ namespace MasterCurrencyConversion
 {
     public class StartCommand : TelegramCommand
     {
-        public override string Name => "@/start";
-
         public override bool Contains(Message message)
         {
             if (message.Type != MessageType.Text)
                 return false;
 
-            return message.Text.Contains(Name);
+            return message.Text.Contains("Start");
         }
 
         public async override Task Execute(Message message, ITelegramBotClient botClient)

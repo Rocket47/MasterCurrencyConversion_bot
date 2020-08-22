@@ -11,9 +11,9 @@ namespace MasterCurrencyConversion
 {
     class DataLoader
     {
-        private string result = null;
+        public string result = null;        
         //@/////////////////////////////////////////////////////////////////////////////////////
-        public async Task GetDataPrivateBank(string date)
+        public async Task GetDataPrivateBank(string date, string currency)
         {
             var httpClient = HttpClientFactory.Create();
             var url = $"https://api.privatbank.ua/p24api/exchange_rates?json&date={date}";
@@ -22,16 +22,16 @@ namespace MasterCurrencyConversion
             {
                 var content = httpResponseMessage.Content;
                 var data = await content.ReadAsAsync<DataAPI>();
-                result = GetExchangeRate(SearchUSDValue(data.exchangeRate));
+                result = GetExchangeRate(SearchCurrencyItem(data.exchangeRate, currency));
             }
         }
         //@/////////////////////////////////////////////////////////////////////////////////////
-        public string[] SearchUSDValue(object[] arr)
+        public string[] SearchCurrencyItem(object[] arr, string currency)
         {
             List<string[]> listForSearchingUSD = GenerateListFromArr(arr);
             foreach (string[] item in listForSearchingUSD)
             {
-                if (item[5].Equals("\"USD\""))
+                if (item[5].Equals("\"" + currency + "\""))
                 {
                     return item;
                 }
@@ -71,6 +71,6 @@ namespace MasterCurrencyConversion
             return result;           
         }
         //@/////////////////////////////////////////////////////////////////////////////////////
-        public string GetInfo() => result;       
+        public string GetCurrency() => result;       
     }
 }
