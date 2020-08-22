@@ -22,7 +22,7 @@ namespace MasterCurrencyConversion
             var me = botClient.GetMeAsync().Result;           
             botClient.OnMessage += Bot_OnMessage;
             botClient.StartReceiving();
-           
+            Console.WriteLine(me.Username);
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
             botClient.StopReceiving();
@@ -39,10 +39,26 @@ namespace MasterCurrencyConversion
             }                        
         
             string date = GetOnlyDate(e.Message.Text.ToString());
-            if (CheckDate(date))
+            string currency = GetOnlyCurrency(e.Message.Text.ToString());
+            if (CheckDate(date) && CheckCurrency(currency))
             {
                 await dataLoader.GetDataPrivateBank(e.Message.Text.ToString());
                 PrintMessage(e, dataLoader.GetInfo());
+            }            
+            if ((!CheckDate(date)) && (CheckCurrency(currency)) && (!e.Message.Text.Equals("Start")))
+            {
+                PrintMessage(e, "Invalid date format");
+                return;
+            }
+            if ((CheckDate(date)) && (!CheckCurrency(currency))  && (!e.Message.Text.Equals("Start")))
+            {
+                PrintMessage(e, "Invalid currency format");
+                return;
+            }
+            if ((!CheckDate(date)) && (!CheckCurrency(currency)) && (!e.Message.Text.Equals("Start")))
+            {
+                PrintMessage(e, "Invalid format");
+                return;
             }
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -56,8 +72,23 @@ namespace MasterCurrencyConversion
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
         static string GetOnlyDate(string str) 
         {
-            string[] result = str.Split(' ');
-            return result[0];
+            if (!str.Equals("Start"))
+            {
+                string[] result = str.Split(' ');
+                return result[0];
+            }
+            return null;
+        }
+        //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        static string GetOnlyCurrency(string str)
+        {
+            if (!str.Equals("Start"))
+            {
+                string[] result = str.Split(' ');
+                if (result.Length < 2) { return null; }
+                return result[1];
+            }
+            return null;
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////        
         static bool CheckDate(string date)
@@ -66,8 +97,17 @@ namespace MasterCurrencyConversion
             bool valid = DateTime.TryParseExact(date, "mm.dd.yyyy",
                                     CultureInfo.InvariantCulture,
                                     DateTimeStyles.None,
-                                    out parsed);
+                                    out parsed);            
             return valid;
+        }
+        //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        static bool CheckCurrency(string str)
+        {
+            if (str == null)
+            {
+                return false;
+            }
+            return str.Equals("USD");
         }
     }
 }

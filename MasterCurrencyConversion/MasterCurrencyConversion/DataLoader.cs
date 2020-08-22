@@ -12,6 +12,7 @@ namespace MasterCurrencyConversion
     class DataLoader
     {
         private string result = null;
+        //@/////////////////////////////////////////////////////////////////////////////////////
         public async Task GetDataPrivateBank(string date)
         {
             var httpClient = HttpClientFactory.Create();
@@ -24,8 +25,8 @@ namespace MasterCurrencyConversion
                 result = GetExchangeRate(SearchUSDValue(data.exchangeRate));
             }
         }
-
-        public  string[] SearchUSDValue(object[] arr)
+        //@/////////////////////////////////////////////////////////////////////////////////////
+        public string[] SearchUSDValue(object[] arr)
         {
             List<string[]> listForSearchingUSD = GenerateListFromArr(arr);
             foreach (string[] item in listForSearchingUSD)
@@ -37,7 +38,7 @@ namespace MasterCurrencyConversion
             }
             return null;
         }
-
+        //@/////////////////////////////////////////////////////////////////////////////////////
         public List<string[]> GenerateListFromArr(object[] arr)
         {
             List<string[]> resultList = new List<string[]>();
@@ -48,13 +49,12 @@ namespace MasterCurrencyConversion
             }
             return resultList;
         }
-
+        //@/////////////////////////////////////////////////////////////////////////////////////
         public string GetExchangeRate(string[] arr)
         {
             int indexSaleRate = 0;
             int indexPurchaseRate = 0;
-            string result = "";
-
+            if (arr == null) { return "Invalid format. Error request."; }
             for (int i = 0; i < arr.Length; i++)
             {
                 if (arr[i].Equals("\"saleRate\":"))
@@ -66,11 +66,11 @@ namespace MasterCurrencyConversion
                     indexPurchaseRate = i;
                 }
             }
-            result = arr[indexSaleRate] + " " + arr[indexSaleRate + 1] + " " + "\n" + arr[indexPurchaseRate] + " " + arr[indexPurchaseRate + 1];
+            string result = arr[indexSaleRate] + " " + arr[indexSaleRate + 1] + " " + "\n" + arr[indexPurchaseRate] + " " + arr[indexPurchaseRate + 1];
             result = result.TrimEnd(new char[] { '}' });
             return result;           
         }
-
+        //@/////////////////////////////////////////////////////////////////////////////////////
         public string GetInfo() => result;       
     }
 }
