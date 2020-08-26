@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using System.Net.Http;
 using System.Net;
@@ -8,7 +8,7 @@ namespace MasterCurrencyConversion
 {
     class DataLoader
     {
-        private string result = null;
+        private string _result = null;
         //@/////////////////////////////////////////////////////////////////////////////////////
         public async Task GetDataPrivateBank(string date, string currency)
         {
@@ -21,16 +21,16 @@ namespace MasterCurrencyConversion
                 var data = await content.ReadAsAsync<DataAPI>();
                 if (data == null)
                 {
-                    result = "Error request.";
+                    _result = "Error request.";
                 }
                 else
                 {                    
-                    result = GetExchangeRate(data.exchangeRate, currency);
+                    _result = GetExchangeRate(data.exchangeRate, currency);
                 }
             }
         }
         //@/////////////////////////////////////////////////////////////////////////////////////
-        public string GetCurrency() => result;
+        public string GetCurrency() => _result;
 
         //@/////////////////////////////////////////////////////////////////////////////////////
         private string GetExchangeRate(List<ExchangeRate> arr, string searchCuurencyValue)
@@ -52,3 +52,4 @@ namespace MasterCurrencyConversion
         }       
     }
 }
+

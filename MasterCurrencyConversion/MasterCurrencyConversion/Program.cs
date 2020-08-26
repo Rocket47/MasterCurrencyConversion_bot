@@ -9,25 +9,25 @@ namespace MasterCurrencyConversion
 {
     class Program
     {
-        private static ITelegramBotClient botClient;
-        private static DataLoader dataLoader = new DataLoader();
-        private const string ERROR_CASE = "Error request";
+        private static ITelegramBotClient _botClient;
+        private static readonly DataLoader _dataLoader = new DataLoader();
+        private const string _ERROR_CASE = "Error request";
         static async Task Main(string[] args)
         {
-            botClient = new TelegramBotClient("1169382738:AAHoo029fBJkoQNyIAL0i02BfFJJMIfpT8s");
-            var me = botClient.GetMeAsync().Result;
-            botClient.OnMessage += Bot_OnMessage;
-            botClient.StartReceiving();
+            _botClient = new TelegramBotClient("1169382738:AAHoo029fBJkoQNyIAL0i02BfFJJMIfpT8s");
+            var me = _botClient.GetMeAsync().Result;
+            _botClient.OnMessage += Bot_OnMessage;
+            _botClient.StartReceiving();
             Console.WriteLine(me.Username);
             Console.WriteLine("Press any key to exit");
             Console.ReadKey();
-            botClient.StopReceiving();
+            _botClient.StopReceiving();
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
         static async void Bot_OnMessage(object sender, MessageEventArgs e)
         {
             StartCommand startCommand = new StartCommand();
-            await startCommand.Execute(e.Message, botClient);
+            await startCommand.Execute(e.Message, _botClient);
             Telegram.Bot.Types.Message msg = e.Message;
             if (msg.Text == null || msg.Type != MessageType.Text)
             {
@@ -38,28 +38,28 @@ namespace MasterCurrencyConversion
             string currency = GetOnlyCurrency(e.Message.Text.ToString());
             if (CheckDate(date))
             {
-                await dataLoader.GetDataPrivateBank(e.Message.Text.ToString(), currency);
+                await _dataLoader.GetDataPrivateBank(e.Message.Text.ToString(), currency);
                 if (CheckCurrency())
                 {
-                    PrintMessage(e, dataLoader.GetCurrency());
+                    PrintMessage(e, _dataLoader.GetCurrency());
                 }
                 else
                 {
-                    PrintMessage(e, ERROR_CASE);
+                    PrintMessage(e, _ERROR_CASE);
                 }
             }
             else
             {
                 if (date != null && !date.Equals("Start", StringComparison.InvariantCultureIgnoreCase))
                 {
-                    PrintMessage(e, ERROR_CASE);
+                    PrintMessage(e, _ERROR_CASE);
                 }
             }
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
         private static async void PrintMessage(MessageEventArgs e, string message)
         {
-            await botClient.SendTextMessageAsync(
+            await _botClient.SendTextMessageAsync(
                     chatId: e.Message.Chat,
                     text: message
                     );
@@ -98,7 +98,7 @@ namespace MasterCurrencyConversion
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
         private static bool CheckCurrency()
         {
-            string currency = dataLoader.GetCurrency();
+            string currency = _dataLoader.GetCurrency();
             if (currency == null)
             {
                 return false;
@@ -107,3 +107,5 @@ namespace MasterCurrencyConversion
         }
     }
 }
+
+
