@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
 using Telegram.Bot;
 using Telegram.Bot.Types;
@@ -30,10 +28,10 @@ namespace MasterCurrencyConversion
                    new[]
                     {
                         new KeyboardButton("Start")
-                    },                  
+                    },
                 }
             };
-            if (message.Text.Equals("Start"))
+            if (message.Text.Equals("Start", StringComparison.InvariantCultureIgnoreCase))
             {
                 await botClient.SendTextMessageAsync(chatId, "Please, enter the date DD.MM.YYYY + currency code\nFor example: 14.07.2014 USD",
                      parseMode: ParseMode.Html, false, false, 0, keyBoard);

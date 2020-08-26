@@ -9,12 +9,13 @@ namespace MasterCurrencyConversion
 {
     class Program
     {
-        private static ITelegramBotClient botClient;        
+        private static ITelegramBotClient botClient;
         private static DataLoader dataLoader = new DataLoader();
+        private const string ERROR_CASE = "Error request";
         static async Task Main(string[] args)
         {
             botClient = new TelegramBotClient("1169382738:AAHoo029fBJkoQNyIAL0i02BfFJJMIfpT8s");
-            var me = botClient.GetMeAsync().Result;           
+            var me = botClient.GetMeAsync().Result;
             botClient.OnMessage += Bot_OnMessage;
             botClient.StartReceiving();
             Console.WriteLine(me.Username);
@@ -29,29 +30,34 @@ namespace MasterCurrencyConversion
             await startCommand.Execute(e.Message, botClient);
             Telegram.Bot.Types.Message msg = e.Message;
             if (msg.Text == null || msg.Type != MessageType.Text)
-            {                
+            {
                 return;
-            }                        
-        
+            }
+
             string date = GetOnlyDate(e.Message.Text.ToString());
             string currency = GetOnlyCurrency(e.Message.Text.ToString());
-
-            if (CheckDate(date)) 
+            if (CheckDate(date))
             {
                 await dataLoader.GetDataPrivateBank(e.Message.Text.ToString(), currency);
                 if (CheckCurrency())
                 {
                     PrintMessage(e, dataLoader.GetCurrency());
                 }
-            }           
-            if ((!CheckDate(date)) && (!CheckCurrency()) && (!e.Message.Text.Equals("Start")))
+                else
+                {
+                    PrintMessage(e, ERROR_CASE);
+                }
+            }
+            else
             {
-                PrintMessage(e, "Invalid format");
-                return;
+                if (date != null && !date.Equals("Start", StringComparison.InvariantCultureIgnoreCase))
+                {
+                    PrintMessage(e, ERROR_CASE);
+                }
             }
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        static async void PrintMessage(MessageEventArgs e, string message)
+        private static async void PrintMessage(MessageEventArgs e, string message)
         {
             await botClient.SendTextMessageAsync(
                     chatId: e.Message.Chat,
@@ -59,40 +65,40 @@ namespace MasterCurrencyConversion
                     );
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        static string GetOnlyDate(string str) 
+        private static string GetOnlyDate(string str)
         {
-            if (!str.Equals("Start"))
+            if (str.Equals("Start", StringComparison.InvariantCultureIgnoreCase))
             {
-                string[] result = str.Split(' ');
-                return result[0];
+                return null;
             }
-            return null;
+            string[] result = str.Split(' ');
+            return result[0];
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        static string GetOnlyCurrency(string str)
+        private static string GetOnlyCurrency(string str)
         {
-            if (!str.Equals("Start"))
+            if (str.Equals("Start", StringComparison.InvariantCultureIgnoreCase))
             {
-                string[] result = str.Split(' ');
-                if (result.Length < 2) { return null; }
-                return result[1];
+                return null;
             }
-            return null;
+            string[] result = str.Split(' ');
+            if (result.Length < 2) { return null; }
+            return result[1];
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////        
-        static bool CheckDate(string date)
-        {           
+        private static bool CheckDate(string date)
+        {
             DateTime parsed;
             bool valid = DateTime.TryParseExact(date, "mm.dd.yyyy",
                                     CultureInfo.InvariantCulture,
                                     DateTimeStyles.None,
-                                    out parsed);            
+                                    out parsed);
             return valid;
         }
         //@//////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        static bool CheckCurrency()
+        private static bool CheckCurrency()
         {
-            string currency = dataLoader.result;
+            string currency = dataLoader.GetCurrency();
             if (currency == null)
             {
                 return false;
